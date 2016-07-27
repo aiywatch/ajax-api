@@ -1,23 +1,23 @@
 $(document).ready(function() {
 
 
-  $('button').on('click', function(){
+  $('#flickr-btn').on('click', function(){
     // alert('');
 
     $.ajax({
-      // type: 'GET',
+
       dataType: 'jsonp',
       jsonp: 'jsoncallback',
       url: 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=60314a392bb45d072a32cf846e506218&text=lighthouse&format=json',
       success: function(data){
-        photos = data.photos.photo
-        // console.log(photos[0]);
+        var photos = data.photos.photo
+
         var i = 0;
 
         setInterval(function(){
           i = i < photos.length ? i : 0;
 
-          photo = photos[i]
+          var photo = photos[i]
           var img = 'https://farm'+ photo.farm +'.staticflickr.com/'+ photo.server +'/'+ photo.id +'_'+photo.secret+'.jpg';
           var url = 'https://www.flickr.com/photos/'+ photo.owner +'/' + photo.id;
 
@@ -30,20 +30,38 @@ $(document).ready(function() {
           $('#title').fadeOut(500, function(){
             $(this).text(photo.title).fadeIn(500);
           })
-
-          // $('img').remove();
-          // $('body').append($('<img>',{ src: img}));
-          
           i++;
         },3000);
         
       }
     });
+  });
 
-    // $.getJSON("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=60314a392bb45d072a32cf846e506218&text=lighthouse&format=rest&api_sig=3a1c73eeac56b398d804c3a1291a03f6",
-    //  function(obj){
-    //   console.log(obj);
-    // });
+  $('#forecast-btn').on('click', function(){
+    var city = $('option:selected');
+    // alert(city.data('state')+city.data('city'));
+    $.ajax({
+      // dataType: 'jsonp',
+      // jsonp: 'jsoncallback',
+      url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/'+ city.data('state') +'/' + city.data('city')+'.json',
+      success: function(data){
+        var week = data.forecast.txt_forecast.forecastday;
+        // console.log(week);
+        $('.show-forecast').html('');
+        for(var i = 0; i < week.length; i++){
+          var day = week[i];
+          console.log(day.fcttext);
+          var head = $('<h3>').text(i + ' day from now');
+          var text = $('<p>').text(day.fcttext);
+          var img = $('<img>').attr('src', day.icon_url);
+
+          var div = $('<div>').append(head).append(text).append(img);
+          // div = $('<div>').text(day.fcttext);
+
+          $('.show-forecast').append(div);
+        }
+      }
+    });
   });
 
 
