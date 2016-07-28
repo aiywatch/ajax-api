@@ -1,3 +1,28 @@
+function call_ajax(city){
+    $.ajax({
+      // dataType: 'jsonp',
+      // jsonp: 'jsoncallback',
+      url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/'+ city.data('state') +'/' + city.data('city')+'.json',
+      success: function(data){
+        var week = data.forecast.txt_forecast.forecastday;
+        // console.log(week);
+        $('.show-forecast').html('');
+        for(var i = 0; i < week.length; i++){
+          var day = week[i];
+          console.log(day.fcttext);
+          var head = $('<h3>').text(i + ' day from now');
+          var text = $('<p>').text(day.fcttext);
+          var img = $('<img>').attr('src', day.icon_url);
+
+          var div = $('<div>').append(head).append(text).append(img);
+          // div = $('<div>').text(day.fcttext);
+
+          $('.show-forecast').append(div);
+        }
+      }
+    });
+}
+
 $(document).ready(function() {
 
 
@@ -40,28 +65,110 @@ $(document).ready(function() {
   $('#forecast-btn').on('click', function(){
     var city = $('option:selected');
     // alert(city.data('state')+city.data('city'));
+
+    call_ajax(city);
+    // $.ajax({
+    //   // dataType: 'jsonp',
+    //   // jsonp: 'jsoncallback',
+    //   url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/'+ city.data('state') +'/' + city.data('city')+'.json',
+    //   success: function(data){
+    //     var week = data.forecast.txt_forecast.forecastday;
+    //     // console.log(week);
+    //     $('.show-forecast').html('');
+    //     for(var i = 0; i < week.length; i++){
+    //       var day = week[i];
+    //       console.log(day.fcttext);
+    //       var head = $('<h3>').text(i + ' day from now');
+    //       var text = $('<p>').text(day.fcttext);
+    //       var img = $('<img>').attr('src', day.icon_url);
+
+    //       var div = $('<div>').append(head).append(text).append(img);
+    //       // div = $('<div>').text(day.fcttext);
+
+    //       $('.show-forecast').append(div);
+    //     }
+    //   }
+    // });
+  });
+
+
+  $('#search-city-btn').on('click', function(){
+    // alert($('#search-input').val());
     $.ajax({
       // dataType: 'jsonp',
       // jsonp: 'jsoncallback',
-      url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/'+ city.data('state') +'/' + city.data('city')+'.json',
+      url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/' + $('#search-input').val() +'.json',
       success: function(data){
-        var week = data.forecast.txt_forecast.forecastday;
+
+        // console.log(data);
+
+        if (data.forecast) {
+
+          var week = data.forecast.txt_forecast.forecastday;
         // console.log(week);
-        $('.show-forecast').html('');
-        for(var i = 0; i < week.length; i++){
-          var day = week[i];
-          console.log(day.fcttext);
-          var head = $('<h3>').text(i + ' day from now');
-          var text = $('<p>').text(day.fcttext);
-          var img = $('<img>').attr('src', day.icon_url);
+          $('.show-forecast').html('');
+          for(var i = 0; i < week.length; i++){
+            var day = week[i];
+            console.log(day.fcttext);
+            var head = $('<h3>').text(i + ' day from now');
+            var text = $('<p>').text(day.fcttext);
+            var img = $('<img>').attr('src', day.icon_url);
 
-          var div = $('<div>').append(head).append(text).append(img);
-          // div = $('<div>').text(day.fcttext);
+            var div = $('<div>').append(head).append(text).append(img);
+            // div = $('<div>').text(day.fcttext);
 
-          $('.show-forecast').append(div);
+            $('.show-forecast').append(div);
+          }
+        } else if (data.response.results) {
+          $('.show-forecast').html('found something');
+          var city = data.response.results;
+          for (var i = 0; i < 10 && i < city.length; i++){
+            var a = $('<a>').text(city[i].city + ' / ' + city[i].state);
+            a.attr('data-city', city[i].city);
+            a.attr('data-state', city[i].state);
+            a.addClass('list-city');
+            
+            var div = $('<div>').append(a);
+
+            $('.show-forecast').append(div);
+          }
+        } else{
+          $('.show-forecast').html('Cannot find the result');
         }
       }
     });
+  });
+
+
+  $('.show-forecast').on('click', '.list-city', function(){
+
+    var city = $(this);
+    // alert(city.data('state')+city.data('city'));
+
+    call_ajax(city);
+
+    // $.ajax({
+    //   // dataType: 'jsonp',
+    //   // jsonp: 'jsoncallback',
+    //   url: 'http://api.wunderground.com/api/c98d80538ff67dd4/forecast/q/'+ city.data('state') +'/' + city.data('city')+'.json',
+    //   success: function(data){
+    //     var week = data.forecast.txt_forecast.forecastday;
+    //     // console.log(week);
+    //     $('.show-forecast').html('');
+    //     for(var i = 0; i < week.length; i++){
+    //       var day = week[i];
+    //       console.log(day.fcttext);
+    //       var head = $('<h3>').text(i + ' day from now');
+    //       var text = $('<p>').text(day.fcttext);
+    //       var img = $('<img>').attr('src', day.icon_url);
+
+    //       var div = $('<div>').append(head).append(text).append(img);
+    //       // div = $('<div>').text(day.fcttext);
+
+    //       $('.show-forecast').append(div);
+    //     }
+    //   }
+    // });
   });
 
 
